@@ -1,8 +1,8 @@
 # VARIABLES GLOBALES
-pos_actual = []
-soluciones = []
-cadena = ""
-N = 0
+pos_actual = [] # Lista para almacenar posiciones actuales en la cadena
+soluciones = [] # Lista de soluciones encontradas
+cadena = "" # Cadena de entrada
+N = 0 # Longitud objetivo 
 
 # FUNCIONES
 
@@ -10,15 +10,18 @@ def generar_hijos(nivel : int) -> list:
     """ Genera y devuelve una lista de posibles opciones para el siguiente paso. """
     """ Lista de posibles índices """
 
-    global pos_actual, cadena # aseguramos que se usan las variables globales
+    global pos_actual, cadena # Uso de las variables globales
 
-    hijos=[]
+    hijos=[] # Lista para almacenar los posibles índices
+
     if nivel > 0:
-        inicio = pos_actual[-1] + 1
+        inicio = pos_actual[-1] + 1 # Continuar después del último índice usado
     else:
-        inicio = 0
+        inicio = 0 # Iniciar desde el primer índice de la cadena
+
     for i in range(inicio, len(cadena)):
         hijos.append(i)
+
     return hijos
 
 def es_solucion(candidatos : list) -> bool:
@@ -35,35 +38,38 @@ def tratar_solucion(candidatos : list, soluciones : list):
 
     global cadena
 
-    if not candidatos:
+    if not candidatos: # Si no hay candidatos no hay solución válida
         return
 
     numero = ''
-    for i in candidatos:
+    for i in candidatos: # Construcción de la subsecuencia
         numero += cadena[i]
-    if numero not in soluciones:
+    if numero not in soluciones: # Evitar duplicados
         soluciones.append(numero)
 
 
 def backtracking(candidatos : list, soluciones : list, nivel : int = 0) -> bool:
     """ Esquema para resolver problemas mediante backtracking """
 
-    global pos_actual # aseguro que se pueda usar pos_actual
+    global pos_actual # Uso de la variable global
 
-    # Caso Base
+    # Caso Base: si se encuentra una solución válida
     if es_solucion(candidatos):                                     # (1)
         tratar_solucion(candidatos, soluciones)
-        return False #para que devuelva todas las soluciones
+        return False # Para que devuelva todas las soluciones posibles
     
-    # Backtracking
+    # Generación de posibles hijos (siguientes elementos)
     hijos = generar_hijos(nivel)                                    # (2)
+
     salir = False
     pos = 0
+
+    # Exploración recursiva
     while pos < len(hijos) and not salir:                           # (3)
         candidatos.append(hijos[pos])
         pos_actual.append(hijos[pos])
         salir = backtracking(candidatos, soluciones, nivel + 1)
-        candidatos.pop() # Backtrack
+        candidatos.pop() # Backtrack: deshacer la elección actual
         pos_actual.pop()
         pos += 1
     return salir

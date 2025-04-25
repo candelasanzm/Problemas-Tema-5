@@ -1,9 +1,9 @@
 # VARIABLES GLOBALES
-pos_actual = []
-soluciones = []
-cadena = ""
-objetivo = ""
-tabla_sustitucion = {
+pos_actual = [] # Lista de posiciones durante la búsqueda 
+soluciones = [] # Lista de soluciones encontradas
+cadena = "" # Cadena inicial que se quiere transformar
+objetivo = "" # Caracter objetivo al que se quiere reducir la cadena
+tabla_sustitucion = { # Tabla de sustitución usada para la transformación
     'a': {'a': 'b', 'b': 'b', 'c': 'a', 'd': 'd'},
     'b': {'a': 'c', 'b': 'a', 'c': 'd', 'd': 'a'},
     'c': {'a': 'b', 'b': 'a', 'c': 'c', 'd': 'c'},
@@ -14,15 +14,25 @@ tabla_sustitucion = {
 
 def generar_hijos(cadena_actual : str) -> list:
     """ Genera y devuelve una lista de posibles opciones para el siguiente paso """
-    hijos = []
+    
+    hijos = [] # Lista donde se guardarán las posibles transformaciones
+
+    # Itera sobre cada par de caracteres adyacentes en la cadena
     for i in range(len(cadena_actual) - 1):
         c1, c2 = cadena_actual[i], cadena_actual[i + 1]
+
+        # Verificamos si la combinación existe en la tabla de sustitución
         if c1 in tabla_sustitucion and c2 in tabla_sustitucion[c1]:
             nuevo_caracter = tabla_sustitucion[c1][c2]
+
+            # Evitamos transformaciones innecesarias en caso de que el resultado sea el mismo
             if c1 == c2 and nuevo_caracter == c1:
                 continue
+
+            # Generamos la nueva cadena
             nueva_cadena = cadena_actual[:i] + nuevo_caracter + cadena_actual[i + 2:]
             hijos.append(nueva_cadena)
+
     return hijos  
 
 def es_solucion(candidatos : list) -> bool:
@@ -35,33 +45,37 @@ def tratar_solucion(candidatos : list, soluciones : list):
     """Realiza las acciones necesarias cuando se encuentra una solución."""
     global cadena 
 
-    print (" -> ".join(candidatos))
+    print (" -> ".join(candidatos)) # Mostrar el camino de transformación
     
     resultado = candidatos[-1]
-    if resultado not in soluciones:
+    if resultado not in soluciones: # Evita agregar soluciones duplicadas
         soluciones.append(resultado)
 
 
 def backtracking(candidatos : list, soluciones : list, nivel : int = 0) -> bool:
     """ Esquema para resolver problemas mediante backtracking """
-    global pos_actual
+    global pos_actual # Usamos la variable global
 
-    # Caso Base
+    # Caso Base: si se encontró una solución válida
     if es_solucion(candidatos):                                     # (1)
         tratar_solucion(candidatos, soluciones)
         return True
     
-    # Backtracking
-    hijos = generar_hijos(candidatos[-1])                                    # (2)
+    # Generación de posibles hijos (transformaciones siguientes)
+    hijos = generar_hijos(candidatos[-1])                           # (2)
+
     salir = False
     pos = 0
+
+    # Exploración recursiva usando los hijos generados
     while pos < len(hijos) and not salir:                           # (3)
         candidatos.append(hijos[pos])
         pos_actual.append(hijos[pos])
         salir = backtracking(candidatos, soluciones, nivel + 1)
-        candidatos.pop()  # Backtrack
+        candidatos.pop()  # Backtrack: deshacer la elección actual
         pos_actual.pop()
         pos += 1
+        
     return salir
 
 # CASOS DE PRUEBA
