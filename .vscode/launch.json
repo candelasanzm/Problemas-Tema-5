@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Application (Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "args": ["${command:pickArgs}"]
+        },
+        {
+            "name": "Run All Tests (Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "args": ["--test", "--benchmark-time-unit=ms", "--benchmark-warmup=on", "-v"]
+        },
+        {
+            "name": "Run Specific Test (Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main.py",
+            "args": ["--test", "--benchmark-time-unit=ms", "--benchmark-warmup=on", "-v", "-k", "${command:pickArgs}"]
+        }
+    ]
+}
