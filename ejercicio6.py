@@ -24,14 +24,11 @@ def generar_hijos(cadena_actual : str) -> list:
         # Verificamos si la combinación existe en la tabla de sustitución
         if c1 in tabla_sustitucion and c2 in tabla_sustitucion[c1]:
             nuevo_caracter = tabla_sustitucion[c1][c2]
-
-            # Evitamos transformaciones innecesarias en caso de que el resultado sea el mismo
-            if c1 == c2 and nuevo_caracter == c1:
-                continue
-
             # Generamos la nueva cadena
             nueva_cadena = cadena_actual[:i] + nuevo_caracter + cadena_actual[i + 2:]
-            hijos.append(nueva_cadena)
+            # Evitar agregar transformaciones idénticas al original
+            if nueva_cadena != cadena_actual and nueva_cadena not in hijos:
+                hijos.append(nueva_cadena)
 
     return hijos  
 
@@ -42,17 +39,13 @@ def es_solucion(candidatos : list) -> bool:
     return candidatos and len(candidatos[-1]) == 1 and candidatos[-1] == objetivo
 
 def tratar_solucion(candidatos : list, soluciones : list):
-    """Realiza las acciones necesarias cuando se encuentra una solución."""
-    global cadena 
-
-    print (" -> ".join(candidatos)) # Mostrar el camino de transformación
-    
+    """ Realiza las acciones necesarias cuando se encuentra una solución """
     resultado = candidatos[-1]
     if resultado not in soluciones: # Evita agregar soluciones duplicadas
-        soluciones.append(resultado)
+        soluciones.append(candidatos[:])
 
 
-def backtracking(candidatos : list, soluciones : list, nivel : int = 0) -> bool:
+def backtracking(candidatos : list, soluciones : list, nivel : int = 0):
     """ Esquema para resolver problemas mediante backtracking """
     global pos_actual # Usamos la variable global
 
@@ -64,19 +57,12 @@ def backtracking(candidatos : list, soluciones : list, nivel : int = 0) -> bool:
     # Generación de posibles hijos (transformaciones siguientes)
     hijos = generar_hijos(candidatos[-1])                           # (2)
 
-    salir = False
-    pos = 0
-
-    # Exploración recursiva usando los hijos generados
-    while pos < len(hijos) and not salir:                           # (3)
-        candidatos.append(hijos[pos])
-        pos_actual.append(hijos[pos])
-        salir = backtracking(candidatos, soluciones, nivel + 1)
-        candidatos.pop()  # Backtrack: deshacer la elección actual
+    for hijo in hijos:
+        candidatos.append(hijo)
+        pos_actual.append(hijo)
+        backtracking(candidatos, soluciones, nivel + 1)
+        candidatos.pop()  # Backtracking: deshacer la elección
         pos_actual.pop()
-        pos += 1
-        
-    return salir
 
 # CASOS DE PRUEBA
 
@@ -96,7 +82,9 @@ for cadena, objetivo in casos_prueba:
     print(f"\nProbando con: {cadena} -> {objetivo}")
     backtracking([cadena], soluciones)
     if soluciones : 
-        print(f"Se encontraron soluciones: {soluciones}")
+        print(f"Se encontraron {len(soluciones)} soluciones:")
+        for i, camino in enumerate(soluciones):
+            print(f"Solución {i + 1}: {' → '.join(camino)}")
     else :
         print("No se encontró una forma de reducir la cadena al carácter objetivo")
 
@@ -108,12 +96,12 @@ def test_generar_hijos_ejercicio6():
     cadena = "acabada"
     hijos1 = generar_hijos(cadena)
     resultado1 = ["aabada", "abbada", "acbada", "acacda", "acabda", "acabad"]
-    assert hijos1 == resultado1
+    assert set(hijos1) == set(resultado1) # Comparamos conjuntos para evitar errores por orden
 
     # Caso 2: caso sin hijos posibles
     cadena = "cccc"
     hijos2 = generar_hijos(cadena)
-    assert hijos2 == []
+    assert hijos2 == ["ccc"]
 
     # Caso 3: caracteres desconocidos
     cadena = "xyz"
@@ -136,28 +124,26 @@ def test_es_solucion_ejercicio6():
 def test_tratar_solucion_ejercicio6():
     soluciones = []
     tratar_solucion(["acabada", "acacda", "abcda", "abcd", "bc", "d"], soluciones)
-    assert soluciones == ["d"]
+    assert soluciones == [["acabada", "acacda", "abcda", "abcd", "bc", "d"]]
 
 def test_backtracking_ejercicio6():
     global objetivo
+    objetivo = "d"
 
     # Caso 1: caso estándar con solución encontrada
     cadena = "acabada"
-    objetivo = "d"
     soluciones1 = []
     backtracking([cadena], soluciones1)
     assert soluciones1
 
     # Caso 2: caso sin solución ´
     cadena = "cccc" 
-    objetivo = "d" 
     soluciones2 = [] 
     backtracking([cadena], soluciones2) 
     assert soluciones2 == [] 
     
     # Caso 3: caso con cadena que es el objetivo 
     cadena = "d" 
-    objetivo = "d" 
     soluciones3 = [] 
     backtracking([cadena], soluciones3) 
-    assert soluciones3 == ["d"]
+    assert soluciones3 == [["d"]]
