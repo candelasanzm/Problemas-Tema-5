@@ -209,3 +209,43 @@ def test_backtracking_ejercicio3():
     soluciones4 = []
     backtracking([], soluciones4)
     assert soluciones4 == []
+
+# TEST DE RENDIMIENTO
+# Test de rendimiento para caso pequeño
+def test_backtracking_ejercicio3_benchmark(benchmark):
+    global cadena, N
+    cadena = "12345"
+    N = 3
+    soluciones = []
+
+    def backtracking_funcion():
+        backtracking([], soluciones)
+        assert soluciones  # Verifica que haya soluciones
+
+    benchmark(backtracking_funcion)
+
+# Test de rendimiento para caso sin solución
+def test_backtracking_ejercicio3_sin_solucion_benchmark(benchmark):
+    global cadena, N
+    cadena = "12"
+    N = 3
+    soluciones = []
+
+    def backtracking_funcion():
+        backtracking([], soluciones)
+        assert soluciones == []  # No debería haber soluciones
+
+    benchmark(backtracking_funcion)
+
+# Test de rendimiento para caso donde la cadena ya es el objetivo
+def test_backtracking_ejercicio3_objetivo_directo_benchmark(benchmark):
+    global cadena, N
+    cadena = "2222"
+    N = 2
+    soluciones = []
+
+    def backtracking_funcion():
+        backtracking([], soluciones)
+        assert soluciones == ["22"]  # La única solución posible
+
+    benchmark(backtracking_funcion)

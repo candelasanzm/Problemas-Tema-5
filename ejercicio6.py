@@ -40,9 +40,9 @@ def es_solucion(candidatos : list) -> bool:
 
 def tratar_solucion(candidatos : list, soluciones : list):
     """ Realiza las acciones necesarias cuando se encuentra una solución """
-    resultado = candidatos[-1]
+    resultado = candidatos[:]
     if resultado not in soluciones: # Evita agregar soluciones duplicadas
-        soluciones.append(candidatos[:])
+        soluciones.append(resultado)
 
 
 def backtracking(candidatos : list, soluciones : list, nivel : int = 0):
@@ -147,3 +147,47 @@ def test_backtracking_ejercicio6():
     soluciones3 = [] 
     backtracking([cadena], soluciones3) 
     assert soluciones3 == [["d"]]
+
+# TEST DE RENDIMIENTO  
+
+# Test de rendimiento para backtracking con caso pequeño
+def test_backtracking_ejercicio6_benchmark(benchmark):
+    global objetivo
+    objetivo = "d"
+
+    cadena = "acabada"
+    soluciones = []
+
+    def backtracking_funcion():
+        backtracking([cadena], soluciones)
+        assert soluciones  # Verifica que haya soluciones
+
+    benchmark(backtracking_funcion)
+
+# Test de rendimiento para caso sin solución
+def test_backtracking_sin_solucion_benchmark(benchmark):
+    global objetivo
+    objetivo = "d"
+
+    cadena = "cccc"
+    soluciones = []
+
+    def backtracking_funcion():
+        backtracking([cadena], soluciones)
+        assert soluciones == []  # No debería haber soluciones
+
+    benchmark(backtracking_funcion)
+
+# Test de rendimiento para caso donde la cadena ya es el objetivo
+def test_backtracking_objetivo_directo_benchmark(benchmark):
+    global objetivo
+    objetivo = "d"
+
+    cadena = "d"
+    soluciones = []
+
+    def backtracking_funcion():
+        backtracking([cadena], soluciones)
+        assert soluciones == [["d"]]  # La única solución posible
+
+    benchmark(backtracking_funcion)
